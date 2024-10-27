@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ToDo List</title>
+    <style>
+      .todo-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+
+      .completed {
+        text-decoration: line-through;
+        color: gray;
+      }
+
+      .todo-controls {
+        display: flex;
+        gap: 10px;
+      }
+
+      button {
+        background-color: #ff6347;
+        border: none;
+        color: white;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 3px;
+      }
+
+      button:hover {
+        background-color: #e05a3d;
+      }
+
+      input[type="text"] {
+        padding: 5px;
+        width: 250px;
+      }
+
+      .form {
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script src="https://www.unpkg.com/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://www.unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+      // ToDoItem component for rendering a single task with its controls
+      function ToDoItem({ todo, onDelete, onComplete }) {
+        return (
+          <div className="todo-item">
+            <span className={todo.completed ? 'completed' : ''}>{todo.text}</span>
+            <div className="todo-controls">
+              <input
+                type="checkbox"
+                checked={todo.completed}
+                onChange={() => onComplete(todo.id)}
+              />
+              <button onClick={() => onDelete(todo.id)}>Delete</button>
+            </div>
+          </div>
+        );
+      }
+
+      // App component with state management and logic for adding, deleting, and completing tasks
+      function App() {
+        const [todos, setTodos] = React.useState([
+          { id: 1, text: 'Learn React', completed: false },
+          { id: 2, text: 'Build a ToDo App', completed: false },
+        ]);
+        const [newTodo, setNewTodo] = React.useState('');
+
+        // Function to handle adding a new task
+        const handleAddTodo = (e) => {
+          e.preventDefault();
+          if (newTodo.trim() === '') return;
+
+          const newTask = {
+            id: Date.now(),
+            text: newTodo,
+            completed: false,
+          };
+
+          setTodos([...todos, newTask]);
+          setNewTodo(''); // Clear the input field after adding
+        };
+
+        // Function to handle deleting a task
+        const handleDelete = (id) => {
+          setTodos(todos.filter((todo) => todo.id !== id));
+        };
+
+        // Function to handle marking a task as completed
+        const handleComplete = (id) => {
+          setTodos(
+            todos.map((todo) =>
+              todo.id === id ? { ...todo, completed: !todo.completed } : todo
+            )
+          );
+        };
+
+        return (
+          <div>
+            <h1>ToDo List</h1>
+
+            {/* Form to add new tasks */}
+            <form className="form" onSubmit={handleAddTodo}>
+              <input
+                type="text"
+                value={newTodo}
+                onChange={(e) => setNewTodo(e.target.value)}
+                placeholder="Add a new task"
+              />
+              <button type="submit">Add</button>
+            </form>
+
+            {/* Rendering the list of tasks */}
+            {todos.map((todo) => (
+              <ToDoItem
+                key={todo.id}
+                todo={todo}
+                onDelete={handleDelete}
+                onComplete={handleComplete}
+              />
+            ))}
+          </div>
+        );
+      }
+
+      // Render the App component into the root div
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
